@@ -1,0 +1,28 @@
+{
+  "name": "onerail",
+  "version": "1.0.0",
+  "description": "Backend service for train search,fare checking and PNR tracking",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3vyansh/OneRail.git"
+  },
+  "author": "Devyansh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/d3vyansh/OneRail/issues"
+  },
+  "homepage": "https://github.com/d3vyansh/OneRail#readme",
+  "dependencies": {
+    "aws-sdk": "^2.1693.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.4",
+    "zod": "^4.3.5"
+  }
+}
