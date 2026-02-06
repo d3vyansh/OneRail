@@ -7,6 +7,7 @@ const { getTrains } = require('../controllers/get_trains');
 const { getFare } = require('../controllers/getFare');
 const { subscribePNR } = require('../controllers/pnr_sub');
 const { pnrModel } = require('../dbschema/pnr_model');
+const { userModel } = require('../dbschema/user_model');
 const { sendPNRMail } = require('../controllers/pnr_alerts');
 trainRouter.use(express.json());
 
@@ -64,8 +65,9 @@ trainRouter.get('/subscribe-pnr', auth, async function (req, res) {
         error: 'Failed to fetch PNR from the API',
       });
     }
+    const user = await userModel.findById(userId);
     await pnrModel.create(returned_pnr);
-    await sendPNRMail(req.user.email, returned_pnr);
+    await sendPNRMail(user.email, returned_pnr);
 
     res.status(200).json({
       message: 'PNR subscribed Sucessfully',

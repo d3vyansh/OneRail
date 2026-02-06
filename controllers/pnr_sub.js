@@ -29,7 +29,7 @@ const subscribePNR = async function (pnr, userId) {
     };
     return pnrdata;
   } catch (e) {
-    console.Error('Error fetching the data:', e.message);
+    console.error('Error fetching the data:', e.message);
   }
 };
 
