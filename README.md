@@ -19,7 +19,6 @@ OneRail is a Node.js and Express-based backend application that allows users to:
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-- [License](#license)
 
 ## Project Structure
 
@@ -99,6 +98,3 @@ AWS_REGION=your_preferred_region (e.g. ap-south-1)
 
 `node index.js`
 
-## License
-
-This project is open-source and available under the [MIT License](LICENSE).
