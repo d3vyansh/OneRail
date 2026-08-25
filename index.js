@@ -1,5 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
+const { connectDB } = require('./dbschema/connection');
 const { userRouter } = require('./routes/user');
 const { trainRouter } = require('./routes/trains');
 
@@ -15,9 +17,17 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use('/api/v1/user', userRouter);
-app.use('/api/v2/trains', trainRouter);
 app.use('/api/v1/train', trainRouter);
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
+const PORT = process.env.PORT || 3000;
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Failed to connect to MongoDB, server not started:', error);
+    process.exit(1);
+  });

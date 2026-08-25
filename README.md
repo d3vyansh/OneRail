@@ -11,6 +11,9 @@ OneRail is a Node.js and Express-based backend application that allows users to:
 
 - [Project Structure](#project-structure)
 - [Endpoints](#endpoints)
+  - [User Routes](#user-routes)
+    - [Sign Up](#sign-up)
+    - [Sign In](#sign-in)
   - [Train Routes](#train-routes)
     - [Search Trains](#search-trains)
     - [Check Fare](#check-fare)
@@ -26,18 +29,39 @@ OneRail is a Node.js and Express-based backend application that allows users to:
 
 ## Endpoints
 
+### User Routes
+
+Base URL: `/api/v1/user`
+
+#### Sign Up
+
+- **Endpoint**: `/signup`
+- **Method**: POST
+- **Body**: `{ "email": "you@example.com", "username": "yourname", "password": "yourpassword" }`
+- **Description**: Creates a new user account.
+
+#### Sign In
+
+- **Endpoint**: `/signin`
+- **Method**: POST
+- **Body**: `{ "email": "you@example.com", "password": "yourpassword" }`
+- **Description**: Returns a JWT (`token`) valid for 7 days. Send this token on the `token` header for all Train Routes below.
+
 ### Train Routes
 
 Base URL: `/api/v1/train`
 
+All routes below require a valid JWT from `/signin` sent on the `token` request header.
+
 #### Search Trains
 
-- **Endpoint**: `/search`
+- **Endpoint**: `/checktrains`
 - **Method**: GET
 - **Query Parameters**:
-  - `from`: Source station code (e.g., `CNB`)
-  - `to`: Destination station code (e.g., `NDLS`)
-- **Description**: Retrieves a list of trains operating between the specified stations.
+  - `fromStationCode`: Source station code (e.g., `CNB`)
+  - `toStationCode`: Destination station code (e.g., `NDLS`)
+  - `date`: Date of journey (e.g., `2026-08-25`)
+- **Description**: Retrieves a list of trains operating between the specified stations on the given date.
 
 #### Check Fare
 
@@ -52,16 +76,15 @@ Base URL: `/api/v1/train`
 #### Subscribe PNR
 
 - **Endpoint**: `/subscribe-pnr`
-- **Method**: GET
-- **Query Parameters**:
-  - `pnrNumber`: PNR number to subscribe (e.g., `2810651211`)
-- **Description**: Subscribes to PNR status tracking. Upon subscription, the system fetches PNR details and stores them in the database.
+- **Method**: POST
+- **Body**: `{ "pnrNumber": "2810651211" }`
+- **Description**: Subscribes to PNR status tracking. Upon subscription, the system fetches PNR details, stores them in the database, and emails the subscriber.
 
 ## AWS SNS Integration
 
 The application integrates with AWS Simple Notification Service (SNS) to send email notifications upon PNR subscription. When a user subscribes to a PNR, the system sends an email with the PNR details to the user's registered email address.
 
-**Note**: Ensure that the AWS credentials are set in the environment variables as described below.
+**Note**: Ensure that the AWS credentials are set in the environment variables as described below. Because this uses SNS email subscriptions rather than SES, a given recipient address must confirm a subscription email once before further notifications will be delivered to it.
 
 ## Getting Started
 
@@ -87,6 +110,7 @@ The application integrates with AWS Simple Notification Service (SNS) to send em
 
 ```
 PORT=3000
+mongoURL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 xrapid_apikey=your_rapidapi_key
 AWS_ACCESS_KEY_ID=your_aws_access_key

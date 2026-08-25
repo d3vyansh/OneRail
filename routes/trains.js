@@ -55,9 +55,14 @@ trainRouter.get('/checkfare', auth, async function (req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-trainRouter.get('/subscribe-pnr', auth, async function (req, res) {
-  const pnr = req.query.pnrNumber;
+trainRouter.post('/subscribe-pnr', auth, async function (req, res) {
+  const pnr = req.body.pnrNumber;
   const userId = req.userId;
+
+  if (!pnr) {
+    return res.status(400).json({ error: 'pnrNumber is required' });
+  }
+
   try {
     const returned_pnr = await subscribePNR(pnr, userId);
     if (!returned_pnr) {
@@ -70,11 +75,12 @@ trainRouter.get('/subscribe-pnr', auth, async function (req, res) {
     await sendPNRMail(user.email, returned_pnr);
 
     res.status(200).json({
-      message: 'PNR subscribed Sucessfully',
+      message: 'PNR subscribed successfully',
       data: returned_pnr,
     });
   } catch (error) {
-    res.status(500).json({ error: 'DB CANT BE UPDATED' });
+    console.error('Error in /subscribe-pnr route:', error.message);
+    res.status(500).json({ error: 'Failed to subscribe to PNR' });
   }
 });
 
