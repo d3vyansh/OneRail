@@ -1,10 +1,6 @@
-const express = require('express');
-const app = express();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const JWT_SECRET = process.env.jwt;
-
-app.use(express.json());
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const auth = function (req, res, next) {
   try {
@@ -19,7 +15,6 @@ const auth = function (req, res, next) {
     const decodedData = jwt.verify(token, JWT_SECRET);
 
     req.userId = decodedData.id;
-    console.log(req.userId);
     next();
   } catch (error) {
     res.status(403).json({

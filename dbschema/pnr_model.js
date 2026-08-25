@@ -1,8 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const { number, string } = require('zod');
 const Schema = mongoose.Schema;
-const Object_Id = mongoose.Types.ObjectId;
 
 const pnr_Schema = new Schema({
   user: {
@@ -17,6 +15,7 @@ const pnr_Schema = new Schema({
   trainNo: String,
   trainName: String,
   from: String,
+  to: String,
   departureTime: String,
   arrivalTime: String,
 });
