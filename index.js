@@ -9,10 +9,7 @@ const { trainRouter } = require('./routes/trains');
 
 app.use(helmet());
 
-// Set ALLOWED_ORIGINS in .env as a comma-separated list, e.g.
-// ALLOWED_ORIGINS=https://onerail.app,http://localhost:5173
-// With nothing set, no browser-based origin is allowed — server-to-server
-// and tools like curl/Postman (no Origin header) still work either way.
+
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())

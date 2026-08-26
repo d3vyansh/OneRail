@@ -1,49 +1,41 @@
-const AWS = require('aws-sdk');
+const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 require('dotenv').config();
 
-AWS.config.update({
+const ses = new SESClient({
   region: process.env.AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
 
-const sns = new AWS.SNS();
-
 const sendPNRMail = async (email, pnrData) => {
-  const message = `
-      Your PNR has been subscribed successfully!
-  
-      🧾 PNR: ${pnrData.pnr}
-      🚆 Train: ${pnrData.trainNo} - ${pnrData.trainName}
-      🛤️ From: ${pnrData.from} → ${pnrData.to}
-      ⏰ Departure: ${pnrData.departureTime}
-      🕒 Arrival: ${pnrData.arrivalTime}
-    `;
-  const params = {
-    Message: message,
-    Subject: 'Your PNR Subscription Confirmation',
-    TopicArn: undefined,
-    TargetArn: undefined,
-    PhoneNumber: undefined,
-    MessageStructure: 'string',
-    Protocol: 'email',
-    Endpoint: email,
-  };
+  const textBody = `Your PNR has been subscribed successfully!
+
+PNR: ${pnrData.pnr}
+Train: ${pnrData.trainNo} - ${pnrData.trainName}
+From: ${pnrData.from} -> ${pnrData.to}
+Departure: ${pnrData.departureTime}
+Arrival: ${pnrData.arrivalTime}`;
+
+  const command = new SendEmailCommand({
+    Source: process.env.SES_FROM_EMAIL,
+    Destination: {
+      ToAddresses: [email],
+    },
+    Message: {
+      Subject: { Data: 'Your PNR Subscription Confirmation', Charset: 'UTF-8' },
+      Body: {
+        Text: { Data: textBody, Charset: 'UTF-8' },
+      },
+    },
+  });
+
   try {
-    const result = await sns
-      .subscribe({
-        Protocol: 'email',
-        TopicArn: '',
-        Endpoint: email,
-      })
-      .promise();
-
-    console.log('Subscription initiated. Check email to confirm:', result);
-
-    await sns.publish(params).promise();
-    console.log('Email sent successfully!');
+    await ses.send(command);
+    console.log('PNR confirmation email sent to', email);
   } catch (err) {
-    console.error('SNS Error:', err.message);
+    console.error('SES Error while sending PNR confirmation email:', err.message);
   }
 };
 
