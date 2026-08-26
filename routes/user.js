@@ -1,5 +1,6 @@
 const express = require('express');
 const { Router } = require('express');
+const rateLimit = require('express-rate-limit');
 const userRouter = Router();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -9,7 +10,17 @@ const bcrypt = require('bcrypt');
 const { userModel } = require('../dbschema/user_model');
 userRouter.use(express.json());
 
-userRouter.post('/signup', async function (req, res) {
+// Auth endpoints are the highest-value brute-force target in the app, so
+// they get a tighter limit than the rest of the API.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many attempts, please try again later.' },
+});
+
+userRouter.post('/signup', authLimiter, async function (req, res) {
   const requiredBody = z.object({
     email: z.string().min(3).max(100).email(),
     username: z.string().min(1).max(20),
@@ -36,7 +47,7 @@ userRouter.post('/signup', async function (req, res) {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 5);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     await userModel.create({
       username: username,
@@ -48,6 +59,13 @@ userRouter.post('/signup', async function (req, res) {
       message: 'You have been signed up',
     });
   } catch (e) {
+    if (e.code === 11000) {
+      // Duplicate key on the unique email index — two signups for the same
+      // email raced past the findOne check above; the DB is the real guard.
+      return res.status(409).json({
+        message: 'Email already exists',
+      });
+    }
     console.log('Error while Signing Up:', e);
     res.status(500).json({
       message: 'Internal Server Error',
@@ -55,15 +73,23 @@ userRouter.post('/signup', async function (req, res) {
   }
 });
 
-userRouter.post('/signin', async function (req, res) {
-  const email = req.body.email;
-  const password = req.body.password;
+userRouter.post('/signin', authLimiter, async function (req, res) {
+  const requiredBody = z.object({
+    email: z.string().min(3).max(100).email(),
+    password: z.string().min(1).max(20),
+  });
 
-  if (!email || !password) {
+  const parseData = requiredBody.safeParse(req.body);
+
+  if (!parseData.success) {
     return res.status(400).json({
-      message: 'Email and password are required',
+      message: 'Incorrect Format',
+      error: parseData.error.format(),
     });
   }
+
+  const email = req.body.email;
+  const password = req.body.password;
 
   try {
     const user = await userModel.findOne({

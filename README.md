@@ -116,7 +116,12 @@ xrapid_apikey=your_rapidapi_key
 AWS_ACCESS_KEY_ID=your_aws_access_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
 AWS_REGION=your_preferred_region (e.g. ap-south-1)
+ALLOWED_ORIGINS=http://localhost:5173
 ```
+
+`ALLOWED_ORIGINS` is a comma-separated list of origins allowed to call this API from a browser (e.g. your frontend's dev and production URLs). Leave it unset to block all browser origins while still allowing server-to-server calls and tools like curl/Postman.
+
+Signup and signin are rate-limited to 10 requests per 15 minutes per IP.
 
 ## 4. Start the server
 
