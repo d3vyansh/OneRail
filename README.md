@@ -18,7 +18,7 @@ OneRail is a Node.js and Express-based backend application that allows users to:
     - [Search Trains](#search-trains)
     - [Check Fare](#check-fare)
     - [Subscribe PNR](#subscribe-pnr)
-- [AWS SNS Integration](#aws-sns-integration)
+- [AWS SES Integration](#aws-ses-integration)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -80,11 +80,11 @@ All routes below require a valid JWT from `/signin` sent on the `token` request 
 - **Body**: `{ "pnrNumber": "2810651211" }`
 - **Description**: Subscribes to PNR status tracking. Upon subscription, the system fetches PNR details, stores them in the database, and emails the subscriber.
 
-## AWS SNS Integration
+## AWS SES Integration
 
-The application integrates with AWS Simple Notification Service (SNS) to send email notifications upon PNR subscription. When a user subscribes to a PNR, the system sends an email with the PNR details to the user's registered email address.
+The application uses AWS Simple Email Service (SES) — via AWS SDK for JavaScript v3 — to send a confirmation email when a user subscribes to a PNR, with the PNR details in the body.
 
-**Note**: Ensure that the AWS credentials are set in the environment variables as described below. Because this uses SNS email subscriptions rather than SES, a given recipient address must confirm a subscription email once before further notifications will be delivered to it.
+**Note**: Set `SES_FROM_EMAIL` to an identity (email address or domain) verified in your SES account. If your SES account is still in the sandbox, recipient addresses must also be verified before they can receive mail; request production access to email arbitrary addresses.
 
 ## Getting Started
 
@@ -93,7 +93,7 @@ The application integrates with AWS Simple Notification Service (SNS) to send em
 - Node.js (v14 or above)
 - npm (Node Package Manager)
 - MongoDB (for storing PNR subscriptions)
-- AWS Account with SNS permissions (for email notifications)
+- AWS Account with SES permissions (for email notifications)
 
 ### Installation
 
@@ -116,6 +116,7 @@ xrapid_apikey=your_rapidapi_key
 AWS_ACCESS_KEY_ID=your_aws_access_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
 AWS_REGION=your_preferred_region (e.g. ap-south-1)
+SES_FROM_EMAIL=your_verified_ses_sender_email
 ALLOWED_ORIGINS=http://localhost:5173
 ```
 

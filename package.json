@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/d3vyansh/OneRail#readme",
   "dependencies": {
-    "aws-sdk": "^2.1693.0",
+    "@aws-sdk/client-ses": "^3.1119.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",

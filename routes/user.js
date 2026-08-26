@@ -10,8 +10,7 @@ const bcrypt = require('bcrypt');
 const { userModel } = require('../dbschema/user_model');
 userRouter.use(express.json());
 
-// Auth endpoints are the highest-value brute-force target in the app, so
-// they get a tighter limit than the rest of the API.
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   limit: 10,
@@ -60,8 +59,7 @@ userRouter.post('/signup', authLimiter, async function (req, res) {
     });
   } catch (e) {
     if (e.code === 11000) {
-      // Duplicate key on the unique email index — two signups for the same
-      // email raced past the findOne check above; the DB is the real guard.
+      
       return res.status(409).json({
         message: 'Email already exists',
       });
