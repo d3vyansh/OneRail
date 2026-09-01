@@ -1,4 +1,3 @@
-require('dotenv').config();
 
 const getFare = async function (trainNo, from, to) {
   const url = `https://irctc1.p.rapidapi.com/api/v2/getFare?trainNo=${trainNo}&fromStationCode=${from}&toStationCode=${to}`;

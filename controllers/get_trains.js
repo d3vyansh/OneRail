@@ -1,4 +1,3 @@
-require('dotenv').config();
 const getTrains = async function (from, to, date) {
   const url = `https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${from}&toStationCode=${to}&dateOfJourney=${date}`;
   const options = {
