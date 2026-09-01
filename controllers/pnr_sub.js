@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { pnrModel } = require('../dbschema/pnr_model');
 
 const subscribePNR = async function (pnr, userId) {

@@ -1,7 +1,6 @@
 const express = require('express');
 const { Router } = require('express');
 const trainRouter = Router();
-require('dotenv').config();
 const { auth } = require('../middlewares/auth');
 const { getTrains } = require('../controllers/get_trains');
 const { getFare } = require('../controllers/getFare');
@@ -51,7 +50,7 @@ trainRouter.get('/checkfare', auth, async function (req, res) {
     }
     res.status(200).json(returned_fare);
   } catch (error) {
-    console.error('Error in /checktrains route:', error.message);
+    console.error('Error in /checkfare route:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

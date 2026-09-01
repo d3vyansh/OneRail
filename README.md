@@ -22,6 +22,7 @@ OneRail is a Node.js and Express-based backend application that allows users to:
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+- [Testing](#testing)
 
 ## Project Structure
 
@@ -127,4 +128,14 @@ Signup and signin are rate-limited to 10 requests per 15 minutes per IP.
 ## 4. Start the server
 
 `node index.js`
+
+## Testing
+
+The test suite mocks the database layer, the IRCTC RapidAPI calls, and the AWS SES client, so it runs fully offline — no MongoDB or AWS credentials required.
+
+```
+npm test              # run the suite once
+npm run test:watch    # re-run on file changes
+npm run test:coverage # run with a coverage report
+```
 

@@ -3,7 +3,6 @@ const { Router } = require('express');
 const rateLimit = require('express-rate-limit');
 const userRouter = Router();
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const { z } = require('zod');
 const bcrypt = require('bcrypt');
@@ -29,7 +28,7 @@ userRouter.post('/signup', authLimiter, async function (req, res) {
   const parseData = requiredBody.safeParse(req.body);
 
   if (!parseData.success) {
-    return res.status(403).json({
+    return res.status(400).json({
       message: 'Incorrect Format',
       error: parseData.error.format(),
     });
@@ -41,7 +40,7 @@ userRouter.post('/signup', authLimiter, async function (req, res) {
   try {
     const existingUser = await userModel.findOne({ email: email });
     if (existingUser) {
-      return res.status(403).json({
+      return res.status(409).json({
         message: 'Email already exists',
       });
     }
