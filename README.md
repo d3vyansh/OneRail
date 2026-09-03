@@ -1,5 +1,7 @@
 # OneRail
 
+[![CI](https://github.com/d3vyansh/OneRail/actions/workflows/ci.yml/badge.svg)](https://github.com/d3vyansh/OneRail/actions/workflows/ci.yml)
+
 OneRail is a Node.js and Express-based backend application that allows users to:
 
 - Search for trains between stations
