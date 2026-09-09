@@ -49,7 +49,7 @@ describe('GET /api/v1/train/checktrains', () => {
     expect(getTrains).toHaveBeenCalledWith('NDLS', 'CNB', '2026-09-01');
   });
 
-  it('returns 500 when the upstream API call fails', async () => {
+  it('returns 502 when the upstream API call fails', async () => {
     getTrains.mockResolvedValue(undefined);
 
     const res = await request(app)
@@ -57,7 +57,7 @@ describe('GET /api/v1/train/checktrains', () => {
       .set('token', validToken)
       .query({ fromStationCode: 'NDLS', toStationCode: 'CNB', date: '2026-09-01' });
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(502);
   });
 
   it('returns 500 when the controller throws', async () => {
@@ -87,7 +87,7 @@ describe('GET /api/v1/train/checkfare', () => {
     expect(res.body.fare).toBe(1250);
   });
 
-  it('returns 500 when the upstream API call fails', async () => {
+  it('returns 502 when the upstream API call fails', async () => {
     getFare.mockResolvedValue(undefined);
 
     const res = await request(app)
@@ -95,7 +95,7 @@ describe('GET /api/v1/train/checkfare', () => {
       .set('token', validToken)
       .query({ trainNo: '12034', fromStationCode: 'NDLS', toStationCode: 'CNB' });
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(502);
   });
 
   it('returns 500 when the controller throws', async () => {
@@ -123,7 +123,7 @@ describe('POST /api/v1/train/subscribe-pnr', () => {
     expect(subscribePNR).not.toHaveBeenCalled();
   });
 
-  it('returns 500 when the PNR cannot be fetched from the upstream API', async () => {
+  it('returns 502 when the PNR cannot be fetched from the upstream API', async () => {
     subscribePNR.mockResolvedValue(undefined);
 
     const res = await request(app)
@@ -131,7 +131,7 @@ describe('POST /api/v1/train/subscribe-pnr', () => {
       .set('token', validToken)
       .send({ pnrNumber: '2810651211' });
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(502);
     expect(pnrModel.create).not.toHaveBeenCalled();
   });
 

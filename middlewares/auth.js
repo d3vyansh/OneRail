@@ -1,25 +1,20 @@
 const jwt = require('jsonwebtoken');
+const { UnauthorizedError, ForbiddenError } = require('../errors/AppError');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const auth = function (req, res, next) {
+  const token = req.headers.token;
+
+  if (!token) {
+    throw new UnauthorizedError('Access Denied. No token provided.');
+  }
+
   try {
-    const token = req.headers.token;
-
-    if (!token) {
-      return res.status(401).json({
-        message: 'Access Denied. No token provided.',
-      });
-    }
-
     const decodedData = jwt.verify(token, JWT_SECRET);
-
     req.userId = decodedData.id;
     next();
   } catch (error) {
-    res.status(403).json({
-      message: 'Invalid Token',
-      error: error.message,
-    });
+    throw new ForbiddenError('Invalid Token');
   }
 };
 

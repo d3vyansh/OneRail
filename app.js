@@ -4,6 +4,8 @@ const cors = require('cors');
 const app = express();
 const { userRouter } = require('./routes/user');
 const { trainRouter } = require('./routes/trains');
+const { notFound } = require('./middlewares/notFound');
+const { errorHandler } = require('./middlewares/errorHandler');
 
 app.use(helmet());
 
@@ -32,5 +34,8 @@ app.use(
 app.use(express.json());
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/train', trainRouter);
+
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = { app };
