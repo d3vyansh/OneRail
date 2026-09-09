@@ -8,79 +8,55 @@ const { subscribePNR } = require('../controllers/pnr_sub');
 const { pnrModel } = require('../dbschema/pnr_model');
 const { userModel } = require('../dbschema/user_model');
 const { sendPNRMail } = require('../controllers/pnr_alerts');
+const { BadRequestError, BadGatewayError } = require('../errors/AppError');
 trainRouter.use(express.json());
 
 trainRouter.get('/checktrains', auth, async function (req, res) {
   const fromStationCode = req.query.fromStationCode;
   const toStationCode = req.query.toStationCode;
   const date = req.query.date;
-  try {
-    const returned_trains = await getTrains(
-      fromStationCode,
-      toStationCode,
-      date
-    );
 
-    if (!returned_trains) {
-      return res.status(500).json({
-        error: 'Failed to fetch trains from the API',
-      });
-    }
-    res.status(200).json({ trains: returned_trains });
-  } catch (error) {
-    console.error('Error in /checktrains route:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+  const returned_trains = await getTrains(fromStationCode, toStationCode, date);
+
+  if (!returned_trains) {
+    throw new BadGatewayError('Failed to fetch trains from the upstream API');
   }
+  res.status(200).json({ trains: returned_trains });
 });
 
 trainRouter.get('/checkfare', auth, async function (req, res) {
   const trainNo = req.query.trainNo;
   const fromStationCode = req.query.fromStationCode;
   const toStationCode = req.query.toStationCode;
-  try {
-    const returned_fare = await getFare(
-      trainNo,
-      fromStationCode,
-      toStationCode
-    );
-    if (!returned_fare) {
-      return res.status(500).json({
-        error: 'Failed to fetch trains from the API',
-      });
-    }
-    res.status(200).json(returned_fare);
-  } catch (error) {
-    console.error('Error in /checkfare route:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+
+  const returned_fare = await getFare(trainNo, fromStationCode, toStationCode);
+
+  if (!returned_fare) {
+    throw new BadGatewayError('Failed to fetch trains from the upstream API');
   }
+  res.status(200).json(returned_fare);
 });
+
 trainRouter.post('/subscribe-pnr', auth, async function (req, res) {
   const pnr = req.body.pnrNumber;
   const userId = req.userId;
 
   if (!pnr) {
-    return res.status(400).json({ error: 'pnrNumber is required' });
+    throw new BadRequestError('pnrNumber is required');
   }
 
-  try {
-    const returned_pnr = await subscribePNR(pnr, userId);
-    if (!returned_pnr) {
-      return res.status(500).json({
-        error: 'Failed to fetch PNR from the API',
-      });
-    }
-    const user = await userModel.findById(userId);
-    await pnrModel.create(returned_pnr);
-    await sendPNRMail(user.email, returned_pnr);
-
-    res.status(200).json({
-      message: 'PNR subscribed successfully',
-      data: returned_pnr,
-    });
-  } catch (error) {
-    console.error('Error in /subscribe-pnr route:', error.message);
-    res.status(500).json({ error: 'Failed to subscribe to PNR' });
+  const returned_pnr = await subscribePNR(pnr, userId);
+  if (!returned_pnr) {
+    throw new BadGatewayError('Failed to fetch PNR from the upstream API');
   }
+  const user = await userModel.findById(userId);
+  await pnrModel.create(returned_pnr);
+  await sendPNRMail(user.email, returned_pnr);
+
+  res.status(200).json({
+    message: 'PNR subscribed successfully',
+    data: returned_pnr,
+  });
 });
 
 module.exports = {

@@ -7,6 +7,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const { z } = require('zod');
 const bcrypt = require('bcrypt');
 const { userModel } = require('../dbschema/user_model');
+const {
+  BadRequestError,
+  ForbiddenError,
+} = require('../errors/AppError');
 userRouter.use(express.json());
 
 
@@ -79,50 +83,36 @@ userRouter.post('/signin', authLimiter, async function (req, res) {
   const parseData = requiredBody.safeParse(req.body);
 
   if (!parseData.success) {
-    return res.status(400).json({
-      message: 'Incorrect Format',
-      error: parseData.error.format(),
-    });
+    throw new BadRequestError('Incorrect Format', parseData.error.format());
   }
 
   const email = req.body.email;
   const password = req.body.password;
 
-  try {
-    const user = await userModel.findOne({
-      email: email,
-    });
+  const user = await userModel.findOne({
+    email: email,
+  });
 
-    if (!user) {
-      return res.status(403).json({
-        message: 'User does not exist, first signup',
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      return res.status(403).json({
-        message: 'Incorrect password',
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        id: user._id.toString(),
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-    res.status(200).json({
-      token: token,
-    });
-  } catch (e) {
-    console.error('Error while signing in:', e);
-    res.status(500).json({
-      message: 'Internal Server Error',
-    });
+  if (!user) {
+    throw new ForbiddenError('User does not exist, first signup');
   }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+
+  if (!passwordMatch) {
+    throw new ForbiddenError('Incorrect password');
+  }
+
+  const token = jwt.sign(
+    {
+      id: user._id.toString(),
+    },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+  res.status(200).json({
+    token: token,
+  });
 });
 
 module.exports = {

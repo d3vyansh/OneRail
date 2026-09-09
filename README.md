@@ -20,6 +20,7 @@ OneRail is a Node.js and Express-based backend application that allows users to:
     - [Search Trains](#search-trains)
     - [Check Fare](#check-fare)
     - [Subscribe PNR](#subscribe-pnr)
+- [Error Responses](#error-responses)
 - [AWS SES Integration](#aws-ses-integration)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -82,6 +83,22 @@ All routes below require a valid JWT from `/signin` sent on the `token` request 
 - **Method**: POST
 - **Body**: `{ "pnrNumber": "2810651211" }`
 - **Description**: Subscribes to PNR status tracking. Upon subscription, the system fetches PNR details, stores them in the database, and emails the subscriber.
+
+## Error Responses
+
+Every error response — validation failures, auth failures, unmatched routes, upstream API failures, and unexpected server errors — follows the same JSON shape:
+
+```json
+{ "message": "human-readable description" }
+```
+
+Validation errors additionally include an `error` field with structured details (from zod):
+
+```json
+{ "message": "Incorrect Format", "error": { "email": { "_errors": ["Invalid email address"] } } }
+```
+
+`502` is returned when this API's own upstream dependency (the IRCTC RapidAPI) fails or returns an invalid response — the request you sent was fine, the failure is downstream of us.
 
 ## AWS SES Integration
 
