@@ -110,7 +110,7 @@ The application uses AWS Simple Email Service (SES) — via AWS SDK for JavaScri
 
 ### Prerequisites
 
-- Node.js (v14 or above)
+- Node.js (v22 or above — matches the CI test matrix)
 - npm (Node Package Manager)
 - MongoDB (for storing PNR subscriptions)
 - AWS Account with SES permissions (for email notifications)
@@ -144,9 +144,17 @@ ALLOWED_ORIGINS=http://localhost:5173
 
 Signup and signin are rate-limited to 10 requests per 15 minutes per IP.
 
-## 4. Start the server
+## 4. Build and start the server
 
-`node index.js`
+This project is written in TypeScript (`src/`) and compiles to `dist/`.
+
+```
+npm run build      # compile src/ -> dist/
+npm start           # run the compiled server (node dist/index.js)
+
+npm run dev         # run directly from src/ with live reload (tsx watch)
+npm run typecheck   # type-check without emitting output
+```
 
 ## Testing
 
