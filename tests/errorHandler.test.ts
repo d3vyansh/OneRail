@@ -94,6 +94,14 @@ describe('errorHandler middleware (unit)', () => {
   });
 });
 
+describe('GET /health', () => {
+  it('returns 200 with no auth or origin required', async () => {
+    const res = await request(app).get('/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ status: 'ok' });
+  });
+});
+
 describe('404 handling (end-to-end)', () => {
   it('returns a clean JSON 404 for an unmatched route instead of an HTML page', async () => {
     const res = await request(app).get('/api/v1/this-route-does-not-exist');

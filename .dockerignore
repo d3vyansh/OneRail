@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.env
+.git
+.github
+tests
+*.test.ts
+README.md
+CODE_OF_CONDUCT.md
+LICENSE
+architecture.excalidraw
+file_structure.png

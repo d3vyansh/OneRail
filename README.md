@@ -26,6 +26,7 @@ OneRail is a Node.js and Express-based backend application that allows users to:
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Testing](#testing)
+- [Running with Docker](#running-with-docker)
 
 ## Project Structure
 
@@ -164,5 +165,23 @@ The test suite mocks the database layer, the IRCTC RapidAPI calls, and the AWS S
 npm test              # run the suite once
 npm run test:watch    # re-run on file changes
 npm run test:coverage # run with a coverage report
+```
+
+## Running with Docker
+
+```
+cp .env.example .env   # fill in your real values
+docker compose up --build
+```
+
+This starts the API (`http://localhost:3000`) and a MongoDB instance together. The app container waits for MongoDB to report healthy before it starts, and won't start listening itself until it has successfully connected to the database (see `src/index.ts`).
+
+A `GET /health` endpoint is available for container/orchestrator healthchecks — it requires no auth and has no dependencies of its own.
+
+To run just the image standalone (bring your own MongoDB):
+
+```
+docker build -t onerail .
+docker run -p 3000:3000 --env-file .env onerail
 ```
 
