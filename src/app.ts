@@ -10,6 +10,13 @@ const app: Express = express();
 
 app.use(helmet());
 
+// Unauthenticated, dependency-free health check for container/orchestrator
+// healthchecks (Docker, load balancers, uptime monitors). Deliberately
+// placed before CORS/auth so it's always reachable regardless of origin.
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Set ALLOWED_ORIGINS in .env as a comma-separated list, e.g.
 // ALLOWED_ORIGINS=https://onerail.app,http://localhost:5173
 // With nothing set, no browser-based origin is allowed — server-to-server
