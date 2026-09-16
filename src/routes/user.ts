@@ -1,10 +1,10 @@
 import express, { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
-import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import { userModel } from '../dbschema/user_model';
 import { BadRequestError, ConflictError, ForbiddenError } from '../errors/AppError';
+import { signupSchema, signinSchema } from '../schemas/user';
 
 const userRouter = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -28,13 +28,7 @@ function isDuplicateKeyError(e: unknown): e is { code: number } {
 }
 
 userRouter.post('/signup', authLimiter, async function (req: Request, res: Response) {
-  const requiredBody = z.object({
-    email: z.string().min(3).max(100).email(),
-    username: z.string().min(1).max(20),
-    password: z.string().min(1).max(20),
-  });
-
-  const parseData = requiredBody.safeParse(req.body);
+  const parseData = signupSchema.safeParse(req.body);
 
   if (!parseData.success) {
     throw new BadRequestError('Incorrect Format', parseData.error.format());
@@ -69,12 +63,7 @@ userRouter.post('/signup', authLimiter, async function (req: Request, res: Respo
 });
 
 userRouter.post('/signin', authLimiter, async function (req: Request, res: Response) {
-  const requiredBody = z.object({
-    email: z.string().min(3).max(100).email(),
-    password: z.string().min(1).max(20),
-  });
-
-  const parseData = requiredBody.safeParse(req.body);
+  const parseData = signinSchema.safeParse(req.body);
 
   if (!parseData.success) {
     throw new BadRequestError('Incorrect Format', parseData.error.format());
