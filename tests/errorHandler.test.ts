@@ -3,6 +3,7 @@ import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import { app } from '../src/app';
 import { errorHandler } from '../src/middlewares/errorHandler';
+import { logger } from '../src/utils/logger';
 import {
   AppError,
   BadRequestError,
@@ -76,21 +77,17 @@ describe('errorHandler middleware (unit)', () => {
     });
   });
 
-  it('reduces a non-AppError to a generic 500 without leaking its message', () => {
+  it('reduces a non-AppError to a generic 500 without leaking its message, and logs it', () => {
     const res = buildRes();
-    const originalError = console.error;
-    console.error = jest.fn();
+    const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => logger);
+    const originalError = new Error('raw DB connection string leaked in here');
 
-    errorHandler(
-      new Error('raw DB connection string leaked in here'),
-      {} as Request,
-      res,
-      (() => {}) as NextFunction
-    );
+    errorHandler(originalError, {} as Request, res, (() => {}) as NextFunction);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ message: 'Internal Server Error' });
-    console.error = originalError;
+    expect(loggerErrorSpy).toHaveBeenCalledWith({ err: originalError }, 'Unexpected error');
+    loggerErrorSpy.mockRestore();
   });
 });
 

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { logger } from '../utils/logger';
 
 export const connectDB = async (): Promise<void> => {
   const mongoURL = process.env.mongoURL;
@@ -6,5 +7,5 @@ export const connectDB = async (): Promise<void> => {
     throw new Error('mongoURL environment variable is not set');
   }
   await mongoose.connect(mongoURL);
-  console.log('MongoDB connected!');
+  logger.info('MongoDB connected');
 };

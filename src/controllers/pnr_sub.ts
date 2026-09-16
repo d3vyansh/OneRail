@@ -1,4 +1,5 @@
 import { PnrData } from '../types/pnr';
+import { logger } from '../utils/logger';
 
 export const subscribePNR = async function (
   pnr: string,
@@ -41,7 +42,7 @@ export const subscribePNR = async function (
     };
     return pnrdata;
   } catch (e) {
-    console.error('Error fetching the data:', (e as Error).message);
+    logger.error({ err: e }, 'Error fetching PNR status from upstream API');
     return undefined;
   }
 };

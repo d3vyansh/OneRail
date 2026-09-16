@@ -1,5 +1,6 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { PnrData } from '../types/pnr';
+import { logger } from '../utils/logger';
 
 const ses = new SESClient({
   region: process.env.AWS_REGION,
@@ -36,8 +37,8 @@ Arrival: ${pnrData.arrivalTime}`;
 
   try {
     await ses.send(command);
-    console.log('PNR confirmation email sent to', email);
+    logger.info({ email }, 'PNR confirmation email sent');
   } catch (err) {
-    console.error('SES Error while sending PNR confirmation email:', (err as Error).message);
+    logger.error({ err, email }, 'SES error while sending PNR confirmation email');
   }
 };

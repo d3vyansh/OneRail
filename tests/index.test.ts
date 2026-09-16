@@ -4,23 +4,20 @@ jest.mock('../src/app', () => ({
 jest.mock('../src/dbschema/connection', () => ({
   connectDB: jest.fn(),
 }));
+jest.mock('../src/utils/logger', () => ({
+  logger: { info: jest.fn(), error: jest.fn() },
+}));
 
 describe('index.ts (entry point)', () => {
   const originalExit = process.exit;
-  const originalLog = console.log;
-  const originalError = console.error;
 
   beforeEach(() => {
     jest.resetModules();
     process.exit = jest.fn() as unknown as typeof process.exit;
-    console.log = jest.fn();
-    console.error = jest.fn();
   });
 
   afterAll(() => {
     process.exit = originalExit;
-    console.log = originalLog;
-    console.error = originalError;
   });
 
   const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
@@ -45,15 +42,18 @@ describe('index.ts (entry point)', () => {
       connectDB: jest.Mock;
     };
     const { app } = jest.requireMock('../src/app') as { app: { listen: jest.Mock } };
+    const { logger } = jest.requireMock('../src/utils/logger') as {
+      logger: { error: jest.Mock };
+    };
     connectDB.mockRejectedValue(new Error('bad connection string'));
 
     require('../src/index');
     await flushPromises();
 
     expect(app.listen).not.toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalledWith(
-      'Failed to connect to MongoDB, server not started:',
-      expect.any(Error)
+    expect(logger.error).toHaveBeenCalledWith(
+      { err: expect.any(Error) },
+      'Failed to connect to MongoDB, server not started'
     );
     expect(process.exit).toHaveBeenCalledWith(1);
   });
