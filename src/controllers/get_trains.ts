@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 export interface TrainSummary {
   train_name: string;
   train_number: string;
@@ -43,7 +45,7 @@ export const getTrains = async function (
 
     return trains;
   } catch (e) {
-    console.error('Error Fetching the data:', (e as Error).message);
+    logger.error({ err: e }, 'Error fetching trains from upstream API');
     return undefined;
   }
 };

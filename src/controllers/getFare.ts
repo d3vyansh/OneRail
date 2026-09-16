@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 export interface FareSummary {
   classType: string;
   fare: number;
@@ -34,7 +36,7 @@ export const getFare = async function (
 
     return simplifiedFareData;
   } catch (e) {
-    console.error('Error Fetching the data:', (e as Error).message);
+    logger.error({ err: e }, 'Error fetching fare from upstream API');
     return undefined;
   }
 };

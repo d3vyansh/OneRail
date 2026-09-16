@@ -1,14 +1,29 @@
 import express, { Express } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import pinoHttp from 'pino-http';
+import swaggerUi from 'swagger-ui-express';
 import { userRouter } from './routes/user';
 import { trainRouter } from './routes/trains';
 import { notFound } from './middlewares/notFound';
 import { errorHandler } from './middlewares/errorHandler';
+import { logger } from './utils/logger';
+import { generateOpenApiDocument } from './openapi/document';
 
 const app: Express = express();
 
 app.use(helmet());
+
+// Structured request logging. Skips /health — it's typically polled every
+// few seconds by an orchestrator and adds noise rather than value.
+app.use(
+  pinoHttp({
+    logger,
+    autoLogging: {
+      ignore: (req) => req.url === '/health',
+    },
+  })
+);
 
 // Unauthenticated, dependency-free health check for container/orchestrator
 // healthchecks (Docker, load balancers, uptime monitors). Deliberately
@@ -16,6 +31,15 @@ app.use(helmet());
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
+// The OpenAPI document is generated from the same zod schemas used for real
+// request validation (see src/schemas/), so the two can't drift apart the
+// way the old hand-written README endpoint docs once did.
+const openApiDocument = generateOpenApiDocument();
+app.get('/openapi.json', (_req, res) => {
+  res.status(200).json(openApiDocument);
+});
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
 // Set ALLOWED_ORIGINS in .env as a comma-separated list, e.g.
 // ALLOWED_ORIGINS=https://onerail.app,http://localhost:5173
