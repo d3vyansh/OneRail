@@ -9,6 +9,13 @@ OneRail is a Node.js and Express-based backend application that allows users to:
 - Subscribe to PNR status tracking
 - Receive alerts (via email/logs) if train status changes
 
+## Live demo
+
+- API docs (Swagger UI): https://onerail.onrender.com/docs
+- Health check: https://onerail.onrender.com/health
+
+To try it: `POST /api/v1/user/signup`, then `signin`, click **Authorize** and paste only the `token` value (not the whole JSON). Hosted on Render's free tier, so the first request after a quiet period can take up to a minute to wake the service.
+
 ## Table of Contents
 
 - [Project Structure](#project-structure)
