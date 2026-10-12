@@ -2,11 +2,13 @@ import 'dotenv/config';
 import { app } from './app';
 import { connectDB } from './dbschema/connection';
 import { logger } from './utils/logger';
+import { initCache } from './utils/cache';
 
 const PORT = process.env.PORT || 3000;
 
 connectDB()
   .then(() => {
+    initCache();
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
     });

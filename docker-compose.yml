@@ -13,8 +13,11 @@ services:
       AWS_REGION: ${AWS_REGION}
       SES_FROM_EMAIL: ${SES_FROM_EMAIL}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      REDIS_URL: redis://redis:6379
     depends_on:
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     restart: unless-stopped
 
@@ -30,6 +33,18 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    restart: unless-stopped
+
+  # Response cache for the upstream railway API. Pure cache, so no
+  # persistence: losing it only means a few extra upstream calls.
+  redis:
+    image: redis:8-alpine
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
 volumes:
