@@ -35,10 +35,6 @@ To try it: `POST /api/v1/user/signup`, then `signin`, click **Authorize** and pa
 - [Testing](#testing)
 - [Running with Docker](#running-with-docker)
 
-## Project Structure
-
-![file_structure](file_structure.png)
-
 ## Endpoints
 
 ### User Routes
